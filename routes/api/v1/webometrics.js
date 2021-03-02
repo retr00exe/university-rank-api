@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const University = require('../models/webometrics.model');
+const University = require('../../../models/webometrics.model');
 
 const getUniversityById = async (req, res, next) => {
 	let university;

@@ -1,8 +1,9 @@
 const express = require('express');
-const morgan = require('morgan');
 const mongoose = require('mongoose');
+const handlebars = require('express-handlebars');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
+const morgan = require('morgan');
 const app = express();
 require('dotenv').config();
 
@@ -23,9 +24,18 @@ const swaggerOptions = {
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-app.use(morgan('dev'));
-app.use(express.json());
+app.set('view engine', 'hbs');
+app.engine(
+	'hbs',
+	handlebars({
+		layoutsDir: __dirname + '/views/layouts',
+		extname: 'hbs',
+	})
+);
+app.use(express.static('public'));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use(express.json());
+app.use(morgan('dev'));
 
 mongoose.connect(
 	process.env.ATLAS_URI,
@@ -38,11 +48,11 @@ mongoose.connect(
 	() => console.log(`Connected to MongoDB Atlas!`)
 );
 
-const webometrics = require('./routes/webometrics');
+const webometrics = require('./routes/api/v1/webometrics');
 app.use('/api/v1/webometrics', webometrics);
 
 app.get('/', (req, res) => {
-	res.send('Hello');
+	res.render('main', { layout: 'index' });
 });
 
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
