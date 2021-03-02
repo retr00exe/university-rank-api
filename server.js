@@ -1,15 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const jwt = require('jsonwebtoken');
 const handlebars = require('express-handlebars');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
-const app = express();
+require('dotenv').config();
 
-if (process.env.NODE_ENV) {
-	require('dotenv').config();
+const app = express();
+app.use(express.json());
+app.use(helmet());
+
+if (process.env.NODE_ENV === 'development') {
 	const morgan = require('morgan');
 	app.use(morgan('dev'));
+
+	const adminSignup = require('./routes/signup');
+	app.use('/signup', adminSignup);
 }
 
 const PORT = process.env.PORT || 3000;
@@ -17,7 +24,7 @@ const swaggerOptions = {
 	swaggerDefinition: {
 		info: {
 			title: 'University Rank API',
-			description: 'Indonesian University Rank API Information',
+			description: 'Indonesian University Rank API',
 			version: 'v1.0.0',
 			contact: {
 				name: 'Mekel Ilyasa',
@@ -37,10 +44,8 @@ app.engine(
 		extname: 'hbs',
 	})
 );
-app.use(helmet());
 app.use(express.static('public'));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.use(express.json());
 
 mongoose.connect(
 	process.env.ATLAS_URI,
@@ -54,7 +59,10 @@ mongoose.connect(
 );
 
 const webometrics = require('./routes/api/v1/webometrics');
+const auth = require('./routes/auth');
+
 app.use('/api/v1/webometrics', webometrics);
+app.use('/auth', auth);
 
 app.get('/', (req, res) => {
 	res.render('main', { layout: 'index' });

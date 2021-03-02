@@ -1,2 +1,6 @@
 /node_modules
 .env
+request.rest
+
+# Signup form for admin
+/routes/signup.js
