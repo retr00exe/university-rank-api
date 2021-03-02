@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const handlebars = require('express-handlebars');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
-const morgan = require('morgan');
 const app = express();
-require('dotenv').config();
+
+if (process.env.NODE_ENV) {
+	require('dotenv').config();
+	const morgan = require('morgan');
+	app.use(morgan('dev'));
+}
 
 const PORT = process.env.PORT || 3000;
 const swaggerOptions = {
@@ -32,10 +37,10 @@ app.engine(
 		extname: 'hbs',
 	})
 );
+app.use(helmet());
 app.use(express.static('public'));
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(express.json());
-app.use(morgan('dev'));
 
 mongoose.connect(
 	process.env.ATLAS_URI,
