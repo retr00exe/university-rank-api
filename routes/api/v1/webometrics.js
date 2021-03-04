@@ -16,7 +16,7 @@ const verifyToken = require('../../../middlewares/verifyToken');
  */
 router.get('/', async (req, res) => {
 	try {
-		const data = await University.find();
+		const data = await University.find().sort('national_rank');
 		res.status(200).json(data);
 	} catch (err) {
 		res.status(500).json({ message: err.message });
@@ -63,7 +63,7 @@ router.post('/', verifyToken, async (req, res) => {
 				const payload = await university.save();
 				res.status(201).json({
 					status: 201,
-					message: 'new university data added to database',
+					message: 'university data added to database',
 					data: payload,
 				});
 			} catch (err) {

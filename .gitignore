@@ -1,6 +1,7 @@
 /node_modules
 .env
 request.rest
+npm-debug.log
 
-# Signup form for admin
+# Dev
 /routes/signup.js

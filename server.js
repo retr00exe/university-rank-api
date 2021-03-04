@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const path = require('path');
 const jwt = require('jsonwebtoken');
-const handlebars = require('express-handlebars');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
@@ -29,23 +29,11 @@ const swaggerOptions = {
 			contact: {
 				name: 'Mekel Ilyasa',
 			},
-			servers: ['http://127.0.0.1:3000'],
 		},
 	},
-	apis: ['./routes/*.js'],
+	apis: ['./routes/api/v1/*.js'],
 };
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-
-app.set('view engine', 'hbs');
-app.engine(
-	'hbs',
-	handlebars({
-		layoutsDir: __dirname + '/views/layouts',
-		extname: 'hbs',
-	})
-);
-app.use(express.static('public'));
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 mongoose.connect(
 	process.env.ATLAS_URI,
@@ -63,9 +51,6 @@ const auth = require('./routes/auth');
 
 app.use('/api/v1/webometrics', webometrics);
 app.use('/auth', auth);
-
-app.get('/', (req, res) => {
-	res.render('main', { layout: 'index' });
-});
+app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
 app.listen(PORT, () => console.log(`Server running at port ${PORT}`));
